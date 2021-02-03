@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://www.w3.org/2005/10/profile">
+    <meta charset="UTF-8">
+    <meta name="description" content="Dormoise.io">
+    <meta name="author" content="Me">
+    <meta name=viewport content="width=device-width, initial-scale=1">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Dormouse Client - Request/Response">
+    <meta name="twitter:description" content="Dormouse Client - Request/Response">
+        <title>Dormouse Client - Request/Response</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+</head>
+<body>
+    <header>
+        
+    
+        <div class="right-sidebar">
+            <a class="beacon-home" href="/">DORMOUSE.IO</a>
+    
+            <a class="ext-link" href="https://github.com/theinnerlight/dormouse">
+            <img src="/images/github-logo.png" alt="Github Profile"/>
+        </a>
+
+        </div>
+    
+        <div class="nav-container" tabindex="0">
+            <div class="nav-toggle"></div>
+    
+            
+          
+            <nav class="nav-items">
+                <h3 class="nav-header">Menu</h3>
+                <a class="nav-item" href="index.html">Dormouse</a>
+            <a class="nav-item" href="uri.html">Dormouse-Uri</a>
+            <a class="nav-item" href="client.html">Dormouse-Client</a>
+            <a class="nav-item" href="client-request-response.html">Dormouse Client - Request/Response</a>
+        </nav>
+        </div>
+    </header>
+
+<div id="page">
+    <article class="post">
+        <h2 id="simple-requestresponse-model">Simple Request/Response Model</h2>
+<p>The simplest possible conception of an http request in Haskell would be a function of the form <code>Request a -&gt; IO (Response b)</code>. In Dormouse, we seek to deviate as little as possible from that form and where we do, we do so only to support additional expressiveness and safety against constructing incorrect requests.</p>
+<h2 id="requests">Requests</h2>
+<p>Dormouse's representation of HTTP requests look like this:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">data</span> <span class="dt">HttpRequest</span> url method body contentTag acceptTag <span class="ot">=</span> <span class="dt">HttpRequest</span> </span>
+<span id="cb1-2"><a href="#cb1-2"></a>  {<span class="ot"> requestMethod ::</span> <span class="op">!</span>(<span class="dt">HttpMethod</span> method)</span>
+<span id="cb1-3"><a href="#cb1-3"></a>  ,<span class="ot"> requestUrl ::</span> <span class="op">!</span>url</span>
+<span id="cb1-4"><a href="#cb1-4"></a>  ,<span class="ot"> requestHeaders ::</span> <span class="dt">Map.Map</span> <span class="dt">HeaderName</span> <span class="dt">ByteString</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a>  ,<span class="ot"> requestBody ::</span> body</span>
+<span id="cb1-6"><a href="#cb1-6"></a>  }</span></code></pre></div>
+<p>Hopefully there is nothing too surprising going on here, an HTTP request is an entity consisting of a request method, url, a collection of headers and a content body. Let's take a look at each of the type parameters:</p>
+<ul>
+<li><p>The <code>url</code> type parameter tags the request with the Url scheme such that we can define functions that shoud accept strictly <code>http</code> or <code>https</code>; or either of the above.</p></li>
+<li><p>The <code>method</code> type parameter tags the request with the name of the HTTP verb, this is used, for example to define functions that will not type-check if you attempt to supply a request body to a request method that does not allow them, e.g. <code>"GET"</code>.</p></li>
+<li><p>The <code>body</code> type parameter allows us to support arbitrary data in the content body of the request.</p></li>
+<li><p>The <code>contentTag</code> and <code>acceptTag</code> type parameters are a little more complicated, these are phantom types that are used to indicate <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types">media types</a> in the request <code>Content-Type</code> and <code>Accept</code> headers. We will see how they are used later!</p></li>
+</ul>
+<p>Let's also introduce some Dormouse defined tyes:</p>
+<ul>
+<li><code>HeaderName</code> is simply a type alias for <code>CI ByteString</code> (a case-insensitive Strict ByteString).</li>
+<li><code>HttpMethod method</code> is a GADT with all your standard HTTP Verbs (e.g. <code>GET :: HttpMethod "GET"</code>) defined as well as support for custom methods.</li>
+</ul>
+<p><strong>Note:</strong> Serialisation of the request is handled by a multi-parameter type class which considers the <code>body</code> of the response, i.e. the structure of the data, and the <code>contentTag</code> which describes the format the data should be serialised in.</p>
+<hr />
+<h3 id="request-building">Request Building</h3>
+<p>Dormouse provides a series of functions that can be used to create and incrementally transform an HTTP request towards a finalised form. Below, we describe a suggested path for convenient construction of</p>
+<h4 id="step-one-request-method-and-url">Step one: request method and URL</h4>
+<p>Dormouse defines some convenient helper functions for creating request templates for each HTTP Verb against a supplied Url.</p>
+<p>Here is the one for post:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1"></a><span class="ot">post ::</span> <span class="dt">IsUrl</span> url <span class="ot">=&gt;</span> url <span class="ot">-&gt;</span> <span class="dt">HttpRequest</span> url <span class="st">&quot;POST&quot;</span> <span class="dt">Empty</span> <span class="dt">EmptyPayload</span> acceptTag   </span></code></pre></div>
+<p>Example use:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1"></a><span class="ot">r ::</span> <span class="dt">HttpRequest</span> (<span class="dt">Url</span> <span class="st">&quot;https&quot;</span>) <span class="st">&quot;POST&quot;</span> <span class="dt">Empty</span> <span class="dt">EmptyPayload</span> acceptTag</span>
+<span id="cb3-2"><a href="#cb3-2"></a>r <span class="ot">=</span> post [https|https://postman-echo.com/post|]</span></code></pre></div>
+<p>This generates a basic HTTP POST request with no payload.</p>
+<h4 id="step-two-request-body">Step two: request body</h4>
+<p>If we are using an HTTP method like <code>POST</code> that permits request bodies, we can supply a request body using the <code>supplyBody</code> function.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1"></a><span class="ot">supplyBody ::</span> (<span class="dt">AllowedBody</span> method b, <span class="dt">RequestPayload</span> b contentTag) </span>
+<span id="cb4-2"><a href="#cb4-2"></a>           <span class="ot">=&gt;</span> <span class="dt">Proxy</span> contentTag </span>
+<span id="cb4-3"><a href="#cb4-3"></a>           <span class="ot">-&gt;</span> b </span>
+<span id="cb4-4"><a href="#cb4-4"></a>           <span class="ot">-&gt;</span> <span class="dt">HttpRequest</span> url method b&#39; contentTag&#39; acceptTag </span>
+<span id="cb4-5"><a href="#cb4-5"></a>           <span class="ot">-&gt;</span> <span class="dt">HttpRequest</span> url method b contentTag acceptTag</span></code></pre></div>
+<p>The supply function transforms the initial request in to ways:</p>
+<ol>
+<li>It adds the supplied request body to the request.</li>
+<li>It adds a <code>Content-Type</code> header to the request based on the supplied <code>contentTag</code>.</li>
+</ol>
+<p>Example use:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1"></a><span class="ot">r&#39; ::</span> <span class="dt">HttpRequest</span> (<span class="dt">Url</span> <span class="st">&quot;https&quot;</span>) <span class="st">&quot;POST&quot;</span> <span class="dt">String</span> <span class="dt">JsonPayload</span> acceptTag</span>
+<span id="cb5-2"><a href="#cb5-2"></a>r&#39; <span class="ot">=</span> supplyBody json (<span class="st">&quot;Test&quot;</span><span class="ot"> ::</span> <span class="dt">String</span>) <span class="op">$</span> post [https|https://postman-echo.com/post|]</span></code></pre></div>
+<p>In this example, a <code>Content-Type: application/json</code> header would be added to the request.</p>
+<h4 id="step-three-supply-an-accept-header">Step three: supply an accept header</h4>
+<p>We can supply an <code>Accept</code> header in our request using the <code>accept</code> function.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1"></a><span class="ot">accept ::</span> <span class="dt">HasMediaType</span> acceptTag </span>
+<span id="cb6-2"><a href="#cb6-2"></a>       <span class="ot">=&gt;</span> <span class="dt">Proxy</span> acceptTag </span>
+<span id="cb6-3"><a href="#cb6-3"></a>       <span class="ot">-&gt;</span> <span class="dt">HttpRequest</span> url method b contentTag acceptTag </span>
+<span id="cb6-4"><a href="#cb6-4"></a>       <span class="ot">-&gt;</span> <span class="dt">HttpRequest</span> url method b contentTag acceptTag</span></code></pre></div>
+<p>This function fixes the <code>acceptTag</code> phantom type and sets a corresponding <code>Accept</code> header.</p>
+<p>While this function is attached to the request, it is primarily useful because it allows us to introduce expectations at the type level about what kind of response we expect to receive.</p>
+<p>Example use:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1"></a><span class="ot">r&#39;&#39; ::</span> <span class="dt">HttpRequest</span> (<span class="dt">Url</span> <span class="st">&quot;https&quot;</span>) <span class="st">&quot;POST&quot;</span> <span class="dt">String</span> <span class="dt">JsonPayload</span> <span class="dt">JsonPayload</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>r&#39;&#39; <span class="ot">=</span> accept json <span class="op">$</span> supplyBody json (<span class="st">&quot;Test&quot;</span><span class="ot"> ::</span> <span class="dt">String</span>) <span class="op">$</span> post [https|https://postman-echo.com/post|]</span></code></pre></div>
+<hr />
+<h2 id="responses">Responses</h2>
+<p>Dormouse's representation of HTTP responses look like this:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">data</span> <span class="dt">HttpResponse</span> body <span class="ot">=</span> <span class="dt">HttpResponse</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a>  {<span class="ot"> responseStatusCode ::</span> <span class="op">!</span><span class="dt">Int</span></span>
+<span id="cb8-3"><a href="#cb8-3"></a>  ,<span class="ot"> responseHeaders ::</span> <span class="dt">Map.Map</span> <span class="dt">HeaderName</span> <span class="dt">SB.ByteString</span></span>
+<span id="cb8-4"><a href="#cb8-4"></a>  ,<span class="ot"> responseBody ::</span> body</span>
+<span id="cb8-5"><a href="#cb8-5"></a>  }</span></code></pre></div>
+<p>I think this is mostly self explanatory but the <code>body</code> type parameter allows us to support arbitrary data in the content body of the response.</p>
+<p>Getting an HTTP response in Dormouse is most often achieved by the <code>expect</code> function. Let's take a look at its type signature</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1"></a><span class="ot">expect ::</span> (<span class="dt">MonadDormouseClient</span> m, <span class="dt">RequestPayload</span> b contentTag, <span class="dt">ResponsePayload</span> b&#39; acceptTag, <span class="dt">IsUrl</span> url)</span>
+<span id="cb9-2"><a href="#cb9-2"></a>       <span class="ot">=&gt;</span> <span class="dt">HttpRequest</span> url method b contentTag acceptTag <span class="ot">-&gt;</span> m (<span class="dt">HttpResponse</span> b&#39;)</span></code></pre></div>
+<p>This function does several things:</p>
+<ul>
+<li>Serialises the arbitrary data in the HTTP request's content body into a stream of <code>Word8</code>s.</li>
+<li>Delegates sending the HTTP request, including the content body stream of <code>Word8</code>s to some <code>MonadDormouseClient m</code></li>
+<li>Receives the HTTP response, including a content body stream of <code>Word8</code>s.</li>
+<li>Deserialises the HTTP responses' content body stream of <code>Word8</code>s into some expected type <code>b'</code>.</li>
+</ul>
+    </article>
+
+</div>
+
+<footer>
+    Built with Haskell using <a href="https://github.com/ChrisPenner/slick">slick</a> ❤️
+</footer>
+
+<link href='https://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet"> 
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Yusei+Magic&display=swap" rel="stylesheet"> 
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Ubuntu&display=swap" rel="stylesheet"> 
+<script src="/js/main.js"></script>
+</body>
+</html>
