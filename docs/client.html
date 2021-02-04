@@ -53,46 +53,65 @@
 <li>It should be possible to handle large request and response bodies via constant memory streaming.</li>
 </ul>
 <h2 id="quick-start">Quick Start</h2>
-<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1"></a><span class="ot">{-# LANGUAGE TemplateHaskell #-}</span></span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="ot">{-# LANGUAGE QuasiQuotes #-}</span></span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="ot">{-# LANGUAGE DataKinds #-}</span></span>
-<span id="cb1-4"><a href="#cb1-4"></a></span>
-<span id="cb1-5"><a href="#cb1-5"></a><span class="kw">import</span> <span class="dt">Control.Monad.IO.Class</span></span>
-<span id="cb1-6"><a href="#cb1-6"></a><span class="kw">import</span> <span class="dt">Dormouse.Client</span></span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1"></a><span class="ot">{-# LANGUAGE DataKinds #-}</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="ot">{-# LANGUAGE DeriveGeneric #-}</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="ot">{-# LANGUAGE QuasiQuotes #-}</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="ot">{-# LANGUAGE TemplateHaskell #-}</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a></span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="kw">import</span> <span class="dt">Control.Monad.IO.Class</span></span>
 <span id="cb1-7"><a href="#cb1-7"></a><span class="kw">import</span> <span class="dt">Data.Aeson.TH</span> </span>
-<span id="cb1-8"><a href="#cb1-8"></a><span class="kw">import</span> <span class="dt">Dormouse.Url.QQ</span></span>
-<span id="cb1-9"><a href="#cb1-9"></a></span>
-<span id="cb1-10"><a href="#cb1-10"></a><span class="kw">data</span> <span class="dt">UserDetails</span> <span class="ot">=</span> <span class="dt">UserDetails</span> </span>
-<span id="cb1-11"><a href="#cb1-11"></a>  {<span class="ot"> name ::</span> <span class="dt">String</span></span>
-<span id="cb1-12"><a href="#cb1-12"></a>  ,<span class="ot"> nickname ::</span> <span class="dt">String</span></span>
-<span id="cb1-13"><a href="#cb1-13"></a>  ,<span class="ot"> email ::</span> <span class="dt">String</span></span>
-<span id="cb1-14"><a href="#cb1-14"></a>  } <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</span>
-<span id="cb1-15"><a href="#cb1-15"></a></span>
-<span id="cb1-16"><a href="#cb1-16"></a>deriveJSON defaultOptions &#39;<span class="dt">&#39;UserDetails</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="kw">import</span> <span class="dt">Dormouse.Client</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a><span class="kw">import</span> <span class="dt">GHC.Generics</span> (<span class="dt">Generic</span>)</span>
+<span id="cb1-10"><a href="#cb1-10"></a><span class="kw">import</span> <span class="dt">Dormouse.Url.QQ</span></span>
+<span id="cb1-11"><a href="#cb1-11"></a></span>
+<span id="cb1-12"><a href="#cb1-12"></a><span class="kw">data</span> <span class="dt">UserDetails</span> <span class="ot">=</span> <span class="dt">UserDetails</span> </span>
+<span id="cb1-13"><a href="#cb1-13"></a>  {<span class="ot"> name ::</span> <span class="dt">String</span></span>
+<span id="cb1-14"><a href="#cb1-14"></a>  ,<span class="ot"> nickname ::</span> <span class="dt">String</span></span>
+<span id="cb1-15"><a href="#cb1-15"></a>  ,<span class="ot"> email ::</span> <span class="dt">String</span></span>
+<span id="cb1-16"><a href="#cb1-16"></a>  } <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>, <span class="dt">Generic</span>)</span>
 <span id="cb1-17"><a href="#cb1-17"></a></span>
-<span id="cb1-18"><a href="#cb1-18"></a><span class="kw">data</span> <span class="dt">EchoedJson</span> a <span class="ot">=</span> <span class="dt">EchoedJson</span> </span>
-<span id="cb1-19"><a href="#cb1-19"></a>  {<span class="ot"> echoedjson ::</span> a</span>
-<span id="cb1-20"><a href="#cb1-20"></a>  } <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</span>
-<span id="cb1-21"><a href="#cb1-21"></a></span>
-<span id="cb1-22"><a href="#cb1-22"></a>deriveJSON defaultOptions {fieldLabelModifier <span class="ot">=</span> <span class="fu">drop</span> <span class="dv">6</span>} &#39;<span class="dt">&#39;EchoedJson</span></span>
+<span id="cb1-18"><a href="#cb1-18"></a>deriveJSON defaultOptions &#39;<span class="dt">&#39;UserDetails</span></span>
+<span id="cb1-19"><a href="#cb1-19"></a></span>
+<span id="cb1-20"><a href="#cb1-20"></a><span class="kw">data</span> <span class="dt">EchoedJson</span> a <span class="ot">=</span> <span class="dt">EchoedJson</span> </span>
+<span id="cb1-21"><a href="#cb1-21"></a>  {<span class="ot"> echoedjson ::</span> a</span>
+<span id="cb1-22"><a href="#cb1-22"></a>  } <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>, <span class="dt">Generic</span>)</span>
 <span id="cb1-23"><a href="#cb1-23"></a></span>
-<span id="cb1-24"><a href="#cb1-24"></a><span class="ot">main ::</span> <span class="dt">IO</span> ()</span>
-<span id="cb1-25"><a href="#cb1-25"></a>main <span class="ot">=</span> <span class="kw">do</span></span>
-<span id="cb1-26"><a href="#cb1-26"></a>  manager <span class="ot">&lt;-</span> newManager tlsManagerSettings</span>
-<span id="cb1-27"><a href="#cb1-27"></a>  runDormouse (<span class="dt">DormouseClientConfig</span> { clientManager <span class="ot">=</span> manager }) <span class="op">$</span> <span class="kw">do</span></span>
-<span id="cb1-28"><a href="#cb1-28"></a>    <span class="kw">let</span> userDetails <span class="ot">=</span> <span class="dt">UserDetails</span> { name <span class="ot">=</span> <span class="st">&quot;James T. Kirk&quot;</span>, nickname <span class="ot">=</span> <span class="st">&quot;Jim&quot;</span>, email <span class="ot">=</span> <span class="st">&quot;james.t.kirk@starfleet.com&quot;</span>}</span>
-<span id="cb1-29"><a href="#cb1-29"></a>    <span class="kw">let</span> req <span class="ot">=</span> accept json <span class="op">$</span> supplyBody json userDetails <span class="op">$</span> post [https|https://postman-echo.com/post|]</span>
-<span id="cb1-30"><a href="#cb1-30"></a><span class="ot">    response ::</span> <span class="dt">HttpResponse</span> (<span class="dt">EchoedJson</span> <span class="dt">UserDetails</span>) <span class="ot">&lt;-</span> expect req</span>
-<span id="cb1-31"><a href="#cb1-31"></a>    liftIO <span class="op">$</span> <span class="fu">print</span> response</span>
-<span id="cb1-32"><a href="#cb1-32"></a>    <span class="fu">return</span> ()</span></code></pre></div>
+<span id="cb1-24"><a href="#cb1-24"></a>deriveJSON defaultOptions {fieldLabelModifier <span class="ot">=</span> <span class="fu">drop</span> <span class="dv">6</span>} &#39;<span class="dt">&#39;EchoedJson</span></span>
+<span id="cb1-25"><a href="#cb1-25"></a></span>
+<span id="cb1-26"><a href="#cb1-26"></a><span class="ot">main ::</span> <span class="dt">IO</span> ()</span>
+<span id="cb1-27"><a href="#cb1-27"></a>main <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb1-28"><a href="#cb1-28"></a>  manager <span class="ot">&lt;-</span> newManager tlsManagerSettings</span>
+<span id="cb1-29"><a href="#cb1-29"></a>  runDormouse (<span class="dt">DormouseClientConfig</span> { clientManager <span class="ot">=</span> manager }) <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb1-30"><a href="#cb1-30"></a>    <span class="kw">let</span> </span>
+<span id="cb1-31"><a href="#cb1-31"></a>      userDetails <span class="ot">=</span> <span class="dt">UserDetails</span> </span>
+<span id="cb1-32"><a href="#cb1-32"></a>        { name <span class="ot">=</span> <span class="st">&quot;James T. Kirk&quot;</span></span>
+<span id="cb1-33"><a href="#cb1-33"></a>        , nickname <span class="ot">=</span> <span class="st">&quot;Jim&quot;</span></span>
+<span id="cb1-34"><a href="#cb1-34"></a>        , email <span class="ot">=</span> <span class="st">&quot;james.t.kirk@starfleet.com&quot;</span></span>
+<span id="cb1-35"><a href="#cb1-35"></a>        }</span>
+<span id="cb1-36"><a href="#cb1-36"></a>      req <span class="ot">=</span> accept json <span class="op">$</span> supplyBody json userDetails <span class="op">$</span> post [https|https://postman-echo.com/post|]</span>
+<span id="cb1-37"><a href="#cb1-37"></a><span class="ot">    response ::</span> <span class="dt">HttpResponse</span> (<span class="dt">EchoedJson</span> <span class="dt">UserDetails</span>) <span class="ot">&lt;-</span> expect req</span>
+<span id="cb1-38"><a href="#cb1-38"></a>    liftIO <span class="op">$</span> <span class="fu">print</span> response</span>
+<span id="cb1-39"><a href="#cb1-39"></a>    <span class="fu">return</span> ()</span></code></pre></div>
+<h2 id="ghc-extensions">GHC Extensions</h2>
+<p>The following GHC extensions are recommended:</p>
+<ul>
+<li>OverloadedStrings</li>
+<li>MultiParamTypeClasses</li>
+<li>ScopedTypeVariables</li>
+<li>FlexibleContexts</li>
+<li>DataKinds</li>
+<li>TemplateHaskell</li>
+<li>QuasiQuotes</li>
+</ul>
 <h2 id="motivation">Motivation</h2>
 <p>There are many great libraries in Haskell already for creating HTTP clients already so before beginning a project like this, it is always wise to question whether the work is truly <em>necessary</em>.</p>
-<p>First of all, it's my belief that the simplest conception of HTTP requests in Haskell can be approximated by something of the form <code>Request a -&gt; IO (Response b)</code>. Dormouse deviates from that form only so far as is neccessary to provide additional expressiveness and safety against constructing incorrect requests. Requests and Responses are simple, immutable Haskell records that you can incrementally build and manipulate to your hearts content, usually using handy convenience functions to trasform them.</p>
+<p>First of all, it is my belief that the simplest conception of HTTP requests in Haskell can be approximated by something of the form <code>Request a -&gt; IO (Response b)</code>. Dormouse deviates from that form only so far as is neccessary to provide additional expressiveness and safety against constructing incorrect requests. Requests and Responses are simple, immutable Haskell records that you can incrementally build and manipulate to your hearts content, usually using handy convenience functions to trasform them.</p>
 <p><code>http-client</code> is a great library upon which almost all the other http libraries (including Dormouse) are based and exposes an API pretty close to this form. It is very powerful and supports many use cases but is very intentionally built as a base layer upon which to build more abstract libraries that help you avoid details like worrying about encoding in <code>ByteString</code>-based Urls, using popular serialisation formats like <code>JSON</code> or providing higher level streaming interfaces.</p>
 <p>Then there are other high level libraries such as <code>Wreq</code> and <code>Req</code> which offer a vastly more type-safe experience but, for various reasons, deviate from this incremental building of HTTP requests that users of e.g. <a href="https://http4s.org/">http4s</a> in the Scala community might be familiar with.</p>
-<p><code>Req</code> is the most type-safe of the two, indeed it makes extensive use of the type system to protect against many of the same classes of errors as Dormouse, avoiding e.g. <code>String</code>s for URLs. Unfortunately, it posed some other difficulties for my use cases, the requirement to provide the precise data type of the response in the request makes it impossible to abstract away the call into something that can be unit tested if you have HTTP Responses with more than one return type.</p>
-<p>Not having a model type to represent the HTTP Request also proved particularly challenging for me. I want to be able to separate out whatever code builds HTTP requests from my core logic so that I can unit test and make sure everything is being reliably assembled. That means I needed a model that allowed me to see the content body, request headers, url and request method all fully assembled and ready to send in one place so that I can categorically determine whether the assembled request is correct or erroneous.</p>
-<p>Perhaps most egregiously, <code>Req</code> seperates out some components which are logically part of the Url such as Port and Query Parameters as well as HTTP Headers into an <code>Options</code> data type, a kind of bucket for things that have nowhere else logical to live. In Dormouse, the Port and Query Parameters live in the Url and headers live in the Request.</p>
+<p><code>Req</code> is the most type-safe of the two, indeed it makes extensive use of the type system to protect against many of the same classes of errors as Dormouse, avoiding e.g. <code>String</code>s for URLs. Unfortunately, it posed some other difficulties for my use cases, the requirement to provide the precise data type of the response in the request makes it impossible to abstract away the call into something that can be unit tested if you have HTTP Responses that return more than one type of data.</p>
+<p>Not having a model type to represent the HTTP Request also proved particularly challenging for me. I like to be able to separate out whatever code builds HTTP requests from my core logic so that I can unit test and make sure everything is being reliably assembled. That means I needed a model that allowed me to see the content body, request headers, url and request method all fully assembled and ready to send in one place so that I can categorically determine whether the assembled request is correct or erroneous.</p>
+<p>Perhaps most egregiously, <code>Req</code> seperates out some components which are logically part of the Url such as Port and Query Parameters as well as HTTP Headers into an <code>Options</code> data type which serves as a kind of bucket for things that have no other logical place to live. This kind of behaviour could be pretty confusing if you alter a config file to change the port you are connecting to without realising that change will not be respected by the library.</p>
+<p>I should be clear at this point that the purpose of this section is not to criticise those other libraries or argue that Dormouse is better, merely to highlight different design decisions that have been made between them and Dormouse. If you are already perfectly happy and feel productive with those libraries then there is absolutely no reason to switch. If, like me, you find these problems frustrating, Dormouse offers an alternative point on the design space that might be worth a try!</p>
     </article>
 
 </div>
