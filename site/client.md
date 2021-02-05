@@ -78,6 +78,7 @@ The following GHC extensions are recommended:
 ## Future Development
 
 - Multipart HTTP requests
+- Stream request/responses directly to/from files
 - TBD 
 
 ## Motivation
