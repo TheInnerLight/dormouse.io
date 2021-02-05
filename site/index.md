@@ -27,10 +27,6 @@ Dormouse aims to be:
 - **Customisable & Realistic:** We recognise that not all APIs are standards compliant and weird things occur in the real world.  Default behaviour should be strict but the library should support customisation to handle interaction with the weird and wonderful real world of bizarre systems and legacy code.
 - **Testable:** Dormouse is built from the ground up to make your job of testing any code that is built on top of it quick, straightforward and painless making it easy to keep projects reliable and well maintained for a long time to come.
 
-## Future Ideas
-
-TBD
-
 ## Licence
 
 Dormouse is distributed under a standard BSD 3-Clause Licence.

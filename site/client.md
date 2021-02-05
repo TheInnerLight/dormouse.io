@@ -75,6 +75,11 @@ The following GHC extensions are recommended:
   - TemplateHaskell
   - QuasiQuotes
 
+## Future Development
+
+- Multipart HTTP requests
+- TBD 
+
 ## Motivation
 
 There are many great libraries in Haskell already for creating HTTP clients already so before beginning a project like this, it is always wise to question whether the work is truly *necessary*.

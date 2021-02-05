@@ -103,6 +103,11 @@
 <li>TemplateHaskell</li>
 <li>QuasiQuotes</li>
 </ul>
+<h2 id="future-development">Future Development</h2>
+<ul>
+<li>Multipart HTTP requests</li>
+<li>TBD</li>
+</ul>
 <h2 id="motivation">Motivation</h2>
 <p>There are many great libraries in Haskell already for creating HTTP clients already so before beginning a project like this, it is always wise to question whether the work is truly <em>necessary</em>.</p>
 <p>First of all, it is my belief that the simplest conception of HTTP requests in Haskell can be approximated by something of the form <code>Request a -&gt; IO (Response b)</code>. Dormouse deviates from that form only so far as is neccessary to provide additional expressiveness and safety against constructing incorrect requests. Requests and Responses are simple, immutable Haskell records that you can incrementally build and manipulate to your hearts content, usually using handy convenience functions to trasform them.</p>
