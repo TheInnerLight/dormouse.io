@@ -22,14 +22,14 @@ Dormouse-Uri has the following features:
  - `DataKinds` allow `Url`s to be restricted to the `http` or `https` schemes are the type level.
  - A UrlBuilder syntax to allow type-safe construction/concatenation of `Url`s from their components, e.g. path and query parameters.
 
- ## Future Development
+## Future Development
 
  - IPv6 host parser
  - Other useful schemes
 
  ---
 
- ## Constructing Uris
+## Constructing Uris
 
  ```haskell
 {-# LANGUAGE QuasiQuotes #-}
@@ -49,7 +49,7 @@ httpUri = [uri|http://haskell.org|]
 
  ---
 
- ## Constructing Urls
+## Constructing Urls
 
 You can construct Urls using the helper QuasiQuoters:
 

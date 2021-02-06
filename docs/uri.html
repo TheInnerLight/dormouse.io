@@ -53,13 +53,13 @@
 <li><code>DataKinds</code> allow <code>Url</code>s to be restricted to the <code>http</code> or <code>https</code> schemes are the type level.</li>
 <li>A UrlBuilder syntax to allow type-safe construction/concatenation of <code>Url</code>s from their components, e.g. path and query parameters.</li>
 </ul>
-<p>## Future Development</p>
+<h2 id="future-development">Future Development</h2>
 <ul>
 <li>IPv6 host parser</li>
 <li>Other useful schemes</li>
 </ul>
 <hr />
-<p>## Constructing Uris</p>
+<h2 id="constructing-uris">Constructing Uris</h2>
 <div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1"></a><span class="ot">{-# LANGUAGE QuasiQuotes #-}</span></span>
 <span id="cb1-2"><a href="#cb1-2"></a></span>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="kw">import</span> <span class="dt">Dormouse.Uri</span></span>
@@ -74,7 +74,7 @@
 <span id="cb1-12"><a href="#cb1-12"></a><span class="ot">httpUri ::</span> <span class="dt">Uri</span></span>
 <span id="cb1-13"><a href="#cb1-13"></a>httpUri <span class="ot">=</span> [uri|http://haskell.org|]</span></code></pre></div>
 <hr />
-<p>## Constructing Urls</p>
+<h2 id="constructing-urls">Constructing Urls</h2>
 <p>You can construct Urls using the helper QuasiQuoters:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1"></a><span class="ot">{-# LANGUAGE DataKinds #-}</span></span>
 <span id="cb2-2"><a href="#cb2-2"></a><span class="ot">{-# LANGUAGE QuasiQuotes #-}</span></span>
