@@ -22,6 +22,10 @@ Dormouse-Uri has the following features:
  - `DataKinds` allow `Url`s to be restricted to the `http` or `https` schemes are the type level.
  - A UrlBuilder syntax to allow type-safe construction/concatenation of `Url`s from their components, e.g. path and query parameters.
 
+## Download
+
+[![Dormouse-Uri on Hackage](https://hackage.haskell.org/static/icons/ic_haskell_grayscale_32.svg) Dormouse-Uri on Hackage](https://hackage.haskell.org/package/dormouse-uri-0.1.0.0)
+
 ## Future Development
 
  - IPv6 host parser

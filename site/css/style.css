@@ -9,6 +9,10 @@ html, body, div, span, object, h1, h2, h3, h4, h5, h6, p, a, abbr, acronym, em, 
   margin: 0;
   padding: 0; }
 
+.post a img {
+  vertical-align: middle;
+}
+
 html {
   box-sizing: border-box; }
 
@@ -308,7 +312,6 @@ a.tag, a.category {
 .post img {
   max-width: 100%;
   margin: auto;
-  display: block;
 }
 
 .table-of-contents {

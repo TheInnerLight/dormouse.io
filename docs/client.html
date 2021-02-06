@@ -11,6 +11,15 @@
         <title>Dormouse-Client</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/syntax.css">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BE8X7SMZL5"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-BE8X7SMZL5');
+    </script>
 </head>
 <body>
     <header>
@@ -52,6 +61,8 @@
 <li>It should be possible to enforce a protocol (e.g. https) at the type level.</li>
 <li>It should be possible to handle large request and response bodies via constant memory streaming.</li>
 </ul>
+<h2 id="download">Download</h2>
+<p><a href="https://hackage.haskell.org/package/dormouse-client-0.1.0.0"><img src="https://hackage.haskell.org/static/icons/ic_haskell_grayscale_32.svg" alt="Dormouse-Client on Hackage" /> Dormouse-Client on Hackage</a></p>
 <h2 id="quick-start">Quick Start</h2>
 <div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1"></a><span class="ot">{-# LANGUAGE DataKinds #-}</span></span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="ot">{-# LANGUAGE DeriveGeneric #-}</span></span>

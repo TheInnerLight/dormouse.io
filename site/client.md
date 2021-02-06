@@ -19,6 +19,10 @@ It was designed with the following objectives in mind:
 - It should be possible to enforce a protocol (e.g. https) at the type level.
 - It should be possible to handle large request and response bodies via constant memory streaming.
 
+## Download
+
+[![Dormouse-Client on Hackage](https://hackage.haskell.org/static/icons/ic_haskell_grayscale_32.svg) Dormouse-Client on Hackage](https://hackage.haskell.org/package/dormouse-client-0.1.0.0)
+
 ## Quick Start 
 
 ```haskell
