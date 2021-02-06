@@ -81,7 +81,7 @@
 <span id="cb1-26"><a href="#cb1-26"></a><span class="ot">main ::</span> <span class="dt">IO</span> ()</span>
 <span id="cb1-27"><a href="#cb1-27"></a>main <span class="ot">=</span> <span class="kw">do</span></span>
 <span id="cb1-28"><a href="#cb1-28"></a>  manager <span class="ot">&lt;-</span> newManager tlsManagerSettings</span>
-<span id="cb1-29"><a href="#cb1-29"></a>  runDormouse (<span class="dt">DormouseClientConfig</span> { clientManager <span class="ot">=</span> manager }) <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb1-29"><a href="#cb1-29"></a>  runDormouseClient (<span class="dt">DormouseClientConfig</span> { clientManager <span class="ot">=</span> manager }) <span class="op">$</span> <span class="kw">do</span></span>
 <span id="cb1-30"><a href="#cb1-30"></a>    <span class="kw">let</span> </span>
 <span id="cb1-31"><a href="#cb1-31"></a>      userDetails <span class="ot">=</span> <span class="dt">UserDetails</span> </span>
 <span id="cb1-32"><a href="#cb1-32"></a>        { name <span class="ot">=</span> <span class="st">&quot;James T. Kirk&quot;</span></span>

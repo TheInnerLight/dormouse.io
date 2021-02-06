@@ -50,7 +50,7 @@ deriveJSON defaultOptions {fieldLabelModifier = drop 6} ''EchoedJson
 main :: IO ()
 main = do
   manager <- newManager tlsManagerSettings
-  runDormouse (DormouseClientConfig { clientManager = manager }) $ do
+  runDormouseClient (DormouseClientConfig { clientManager = manager }) $ do
     let 
       userDetails = UserDetails 
         { name = "James T. Kirk"
