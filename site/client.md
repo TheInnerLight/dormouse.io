@@ -21,7 +21,7 @@ It was designed with the following objectives in mind:
 
 ## Download
 
-[![Dormouse-Client on Hackage](https://hackage.haskell.org/static/icons/ic_haskell_grayscale_32.svg) Dormouse-Client on Hackage](https://hackage.haskell.org/package/dormouse-client-0.1.0.0)
+[![Dormouse-Client on Hackage](https://hackage.haskell.org/static/icons/ic_haskell_grayscale_32.svg) Dormouse-Client on Hackage](https://hackage.haskell.org/package/dormouse-client)
 
 ## Quick Start 
 

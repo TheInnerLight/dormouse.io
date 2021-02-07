@@ -24,7 +24,7 @@ Dormouse-Uri has the following features:
 
 ## Download
 
-[![Dormouse-Uri on Hackage](https://hackage.haskell.org/static/icons/ic_haskell_grayscale_32.svg) Dormouse-Uri on Hackage](https://hackage.haskell.org/package/dormouse-uri-0.1.0.0)
+[![Dormouse-Uri on Hackage](https://hackage.haskell.org/static/icons/ic_haskell_grayscale_32.svg) Dormouse-Uri on Hackage](https://hackage.haskell.org/package/dormouse-uri)
 
 ## Future Development
 
