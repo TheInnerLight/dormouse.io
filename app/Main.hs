@@ -123,7 +123,7 @@ toIsoDate = formatTime defaultTimeLocale (iso8601DateFormat rfc3339)
 --   defines workflow to build the website
 buildRules :: Action ()
 buildRules = do
-  allPages <- L.sortOn (ORD.Down . (\x -> (isTop x,  title x)))  <$> buildPages
+  allPages <- L.sortOn (\x -> (not $ isTop x, title x))  <$> buildPages
   writePages allPages
   copyStaticFiles
 

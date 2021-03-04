@@ -1,5 +1,5 @@
 ---
-title: "Dormouse-Client"
+title: "Dormouse Client"
 author: Me
 date: Jan 31, 2021
 tags: [haskell, dormouse]

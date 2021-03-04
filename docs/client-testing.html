@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://www.w3.org/2005/10/profile">
+    <meta charset="UTF-8">
+    <meta name="description" content="Dormoise.io">
+    <meta name="author" content="Me">
+    <meta name=viewport content="width=device-width, initial-scale=1">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Dormouse Client - Testing">
+    <meta name="twitter:description" content="Dormouse-Client-Testing">
+        <title>Dormouse Client - Testing</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/syntax.css">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BE8X7SMZL5"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-BE8X7SMZL5');
+    </script>
+</head>
+<body>
+    <header>
+        
+    
+        <div class="right-sidebar">
+            <a class="beacon-home" href="/">DORMOUSE.IO</a>
+    
+            <a class="ext-link" href="https://github.com/theinnerlight/dormouse">
+            <img src="images/github-logo.png" alt="Github Profile"/>
+        </a>
+
+        </div>
+    
+        <div class="nav-container" tabindex="0">
+            <div class="nav-toggle"></div>
+    
+            
+          
+            <nav class="nav-items">
+                <h3 class="nav-header">Menu</h3>
+                <a class="nav-item" href="index.html">Dormouse</a>
+            <a class="nav-item" href="client.html">Dormouse Client</a>
+            <a class="nav-item" href="client-request-response.html">Dormouse Client - Request/Response</a>
+            <a class="nav-item" href="client-testing.html">Dormouse Client - Testing</a>
+            <a class="nav-item" href="uri.html">Dormouse-Uri</a>
+        </nav>
+        </div>
+    </header>
+
+<div id="page">
+    <article class="post">
+        <h2 id="testing">Testing</h2>
+<p>Dormouse-Client has been designed to facilitate easy testing. The expectation is that, most of the time, you will want to test code based on Dormouse client by a type class instance where you supply an implementation in one of two forms.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1"></a><span class="ot">expectBs ::</span> <span class="dt">HttpRequest</span> scheme method <span class="dt">S.ByteString</span> contentTag acceptTag <span class="ot">-&gt;</span> m (<span class="dt">HttpResponse</span> <span class="dt">S.ByteString</span>)</span></code></pre></div>
+<p>or</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1"></a><span class="ot">expectLbs ::</span> <span class="dt">HttpRequest</span> scheme method <span class="dt">L.ByteString</span> contentTag acceptTag <span class="ot">-&gt;</span> m (<span class="dt">HttpResponse</span> <span class="dt">L.ByteString</span>)</span></code></pre></div>
+<p>These alternatives are HTTP requests and responses where the content bodies are simply Strict or Lazy <code>ByteString</code>s. Eliminating the polymorphic content body type in favour of <code>ByteString</code> is incredibly useful for testing because it allows the same function to generate responses which map to multiple different Haskell types.</p>
+<h2 id="test-module">Test Module</h2>
+<p>Note that Dormouse-Client is not fundamentally implemented with a type class containing functions of this form, this is because Dormoues-Client uses Streamly to handle the transmission of content bodies. Dealing with streams directly is fine, if truly neccessary, but it also opens up a number of possibilities for error that we'd generally like to avoid in a high level library such as this one (e.g. a user accidentally attempting to consume a request body multiple times.)</p>
+<p>To get around this, we provide a special type class to facilitate testing in this form. To access this, import the Test Class module:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">import</span> <span class="dt">Dormouse.Client.Test.Class</span></span></code></pre></div>
+<p>within which you will find a type class with these properties:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">class</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> <span class="dt">MonadDormouseTestClient</span> m <span class="kw">where</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="ot">  expectLbs ::</span> <span class="dt">IsUrl</span> url </span>
+<span id="cb4-3"><a href="#cb4-3"></a>            <span class="ot">=&gt;</span> <span class="dt">HttpRequest</span> scheme method <span class="dt">L.ByteString</span> contentTag acceptTag <span class="ot">-&gt;</span> m (<span class="dt">HttpResponse</span> <span class="dt">L.ByteString</span>)</span>
+<span id="cb4-4"><a href="#cb4-4"></a><span class="ot">  expectBs ::</span> <span class="dt">IsUrl</span> url </span>
+<span id="cb4-5"><a href="#cb4-5"></a>           <span class="ot">=&gt;</span> <span class="dt">HttpRequest</span> scheme method <span class="dt">S.ByteString</span> contentTag acceptTag <span class="ot">-&gt;</span> m (<span class="dt">HttpResponse</span> <span class="dt">S.ByteString</span>)</span>
+<span id="cb4-6"><a href="#cb4-6"></a>  <span class="ot">{-# MINIMAL expectLbs | expectBs #-}</span></span></code></pre></div>
+<p><strong>Note:</strong> This class has an Orphan instance of <code>MonadDormouseClient</code> so you should be careful this module and keep it tightly confined to test cases.</p>
+<p>Assuming that you have some Test monad <code>TestM</code>, which is configured something like this:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">newtype</span> <span class="dt">TestM</span> a <span class="ot">=</span> <span class="dt">TestM</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>  {<span class="ot"> unTestM ::</span> <span class="dt">ReaderT</span> <span class="dt">TestEnv</span> <span class="dt">IO</span> a </span>
+<span id="cb5-3"><a href="#cb5-3"></a>  } <span class="kw">deriving</span> (<span class="dt">Functor</span>, <span class="dt">Applicative</span>, <span class="dt">Monad</span>, <span class="dt">MonadReader</span> <span class="dt">TestEnv</span>, <span class="dt">MonadIO</span>, <span class="dt">MonadThrow</span>)</span></code></pre></div>
+<p>You can then go ahead and create an instance of <code>MonadDormouseClient</code>.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw">instance</span> <span class="dt">MonadDormouseTestClient</span> <span class="dt">TestM</span> <span class="kw">where</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a>  expectBs (r <span class="op">@</span> <span class="dt">HttpRequest</span> { requestUrl <span class="ot">=</span> url, requestMethod <span class="ot">=</span> method, requestBody <span class="ot">=</span> body, requestHeaders <span class="ot">=</span> headers }) <span class="ot">=</span> </span>
+<span id="cb6-3"><a href="#cb6-3"></a>    <span class="kw">let</span> reqUrl <span class="ot">=</span> asAnyUrl url <span class="kw">in</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a>    <span class="kw">case</span> (reqUrl, method) <span class="kw">of</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a>      ([url|https://starfleet.com/captains|], <span class="dt">GET</span>) <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a>        resp <span class="ot">&lt;-</span> <span class="op">...</span> <span class="co">-- implementation here!</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a>        <span class="fu">pure</span> <span class="op">$</span> <span class="dt">HttpResponse</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a>          { responseStatusCode <span class="ot">=</span> <span class="dv">200</span></span>
+<span id="cb6-9"><a href="#cb6-9"></a>          , responseHeaders <span class="ot">=</span> [(<span class="st">&quot;Content-Type&quot;</span>, <span class="st">&quot;application/json&quot;</span>)]</span>
+<span id="cb6-10"><a href="#cb6-10"></a>          , responseBody <span class="ot">=</span> resp</span>
+<span id="cb6-11"><a href="#cb6-11"></a>          }</span></code></pre></div>
+<p>This provides a re-usable template that we can use to implement tests and ensure that our requests are being constructed correctly and that responses of the expected form can be handled.</p>
+<p><strong>Note:</strong></p>
+<ul>
+<li>Using the line <code>let reqUrl = asAnyUrl url</code> before pattern matching on <code>url</code> is crucial because it allows the funtion to work polymorphically across different <code>Url</code> types, e.g. <code>Http</code>, <code>Https</code> or <code>AnyUrl</code>.</li>
+<li>Pattern matching a literal URL with the <code>url</code> QuasiQuoter requires the <code>ViewPatterns</code> language extension.</li>
+</ul>
+    </article>
+
+</div>
+
+<footer>
+    Built with Haskell using <a href="https://github.com/ChrisPenner/slick">slick</a> ❤️
+    <p>
+        Copyright &#169; 2021 Phil Curzon
+    </p>
+</footer>
+
+<link href='https://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet"> 
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Yusei+Magic&display=swap" rel="stylesheet"> 
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Ubuntu&display=swap" rel="stylesheet"> 
+<script src="js/main.js"></script>
+</body>
+</html>
